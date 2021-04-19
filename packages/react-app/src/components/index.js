@@ -36,7 +36,7 @@ export const Link = styled.a.attrs({
 `;
 
 export const Button = styled.button`
-  background: transparent linear-gradient(270deg, #C30075 0%, #eb008b 100%) 0 0 no-repeat padding-box;
+  background: transparent linear-gradient(270deg, #8f4198 0%, #eb008b 100%) 0 0 no-repeat padding-box;
   border: none;
   border-radius: 8px;
   color: white;
