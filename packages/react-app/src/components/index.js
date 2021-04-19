@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const Header = styled.header`
-  background-color: #282c34;
+  background-color: black;
   min-height: 70px;
   display: flex;
   flex-direction: row;
@@ -12,11 +12,11 @@ export const Header = styled.header`
 
 export const Body = styled.body`
   align-items: center;
-  background-color: #282c34;
+  background-color: black;
   color: white;
   display: flex;
   flex-direction: column;
-  font-size: calc(10px + 2vmin);
+  font-size: 16px;
   justify-content: center;
   min-height: calc(100vh - 70px);
 `;
@@ -36,19 +36,34 @@ export const Link = styled.a.attrs({
 `;
 
 export const Button = styled.button`
-  background-color: white;
+  background: transparent linear-gradient(270deg, #C30075 0%, #eb008b 100%) 0 0 no-repeat padding-box;
   border: none;
   border-radius: 8px;
-  color: #282c34;
+  color: white;
   cursor: pointer;
   font-size: 16px;
   text-align: center;
-  text-decoration: none;
-  margin: 0px 20px;
-  padding: 12px 24px;
+  text-decoration: bold;
+  margin: 0px 3px;
+  padding: 8px 24px;
 
   ${props => props.hidden && "hidden"} :focus {
     border: none;
     outline: none;
   }
+`;
+
+export const Actions = styled.div`
+  border: none;
+  display: flex;
+  justify-content: center;
+  padding: 3px;
+  clear: none; 
+`;
+
+export const TokenBalance = styled.p`
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  text-decoration: bold;
 `;
