@@ -1,8 +1,8 @@
 import React from 'react';
 import { Contract } from "@ethersproject/contracts";
-import { formatFixed } from "@ethersproject/bignumber";
+import { parseFixed, formatFixed } from "@ethersproject/bignumber";
 import { Zero, One } from "@ethersproject/constants";
-import { Body, Button, Header, Image, Actions, TokenBalance } from "./components";
+import { Body, Button, Header, Image, Actions, Input, TokenBalance } from "./components";
 import logo from "./hashdrop_logo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import { addresses, abis } from "@project/contracts";
@@ -11,12 +11,12 @@ import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 
 const CHAIN_ID = 42;
+const MAX_EXPENSE = 3000;
 const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 const WEI = One;
+const ILL = WEI.mul(10).pow(16);
 const WAD = WEI.mul(10).pow(18);
-// const RAY = WEI.mul(10).pow(27);
-// const RAD = WAD.mul(RAY);
 const MIN_TARGET_ALLOWANCE = WEI.mul(2000).mul(WAD);
 const MAX_TARGET_ALLOWANCE = WEI.mul(5000).mul(WAD);
 
@@ -41,10 +41,12 @@ const defaultToken = tokenSelect[0];
 
 function App() {
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
+  const [canTell, setCanTell] = React.useState(false);
   const [balance, setBalance] = React.useState("0.00");
   const [approved, setApproved] = React.useState(false);
   const [token, setToken] = React.useState(defaultToken);
   const [waiting, setWaiting] = React.useState(false);
+  const [daiValue, setDaiValue] = React.useState("");
  
   async function tokenBalance(provider, tokenAddress) {
     let dec = 18;
@@ -83,6 +85,8 @@ function App() {
        setApproved(true);
        return true;
     } 
+
+    setCanTell(true);
 
     const signer = provider.getSigner();
     const from = await signer.getAddress();
@@ -142,6 +146,35 @@ function App() {
     }
     setWaiting(false);
   }
+ 
+  async function tell(provider) {
+    const signer = provider.getSigner();
+
+    const value = parseFixed(daiValue, 2);
+    const wad = value.mul(ILL);
+
+    if(value.div(10**2).gt(MAX_EXPENSE)) {
+      setDaiValue(""); 
+      console.error(
+        formatFixed(value, 2) + " value too large (<=" + MAX_EXPENSE + ")"
+      );
+      return;
+    }
+
+    const split = new Contract(addresses.split, abis.split, signer);
+    try {
+      setWaiting(true);
+      let tx;
+      tx = await split.tell(wad);
+      const receipt = await tx.wait();
+      if (receipt.status === 1) {
+        setDaiValue("");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setWaiting(false);
+  }
   
   function TokenSelect(selection) {
     setToken(selection.label);
@@ -163,7 +196,7 @@ function App() {
     );
   }
   
-  function ApproveTakeButton({ provider , token }) {
+  function ApproveTakeButton({ provider, token }) {
     isApproved(provider);
 
     return (
@@ -180,6 +213,20 @@ function App() {
         </Button>
     );
   }
+  
+  function ExpenseButton({ provider }) {
+    return (
+        <Button
+            onClick={() => {
+              if (daiValue !== "") {
+                tell(provider);
+              }
+            }}
+        >
+         Expense
+        </Button>
+    );
+  }
 
   function Balance({ provider, token }) {
     tokenBalance(provider, reverseMapping[token].address);
@@ -187,6 +234,10 @@ function App() {
     return (
       <TokenBalance>Balance: {balance}</TokenBalance>
     );
+  }
+
+  function daiChange(event) {
+    setDaiValue(event.target.value);
   }
 
   return (
@@ -197,10 +248,14 @@ function App() {
       <Body>
         <Image src={logo} alt="hashdrop-logo" />
         { waiting ? <p>waiting...</p>: null }
-        { (!waiting && approved && provider && token) ? <Balance provider={provider} token={token} /> : null }
+        { (!waiting && provider && approved && token) ? <Balance provider={provider} token={token} /> : null }
         <Actions>
-          { (!waiting && approved && provider) ? <Dropdown options={tokenSelect} onChange={TokenSelect} value={defaultToken} placeholder="Select an token" /> : null }
+          { (!waiting && provider && approved) ? <Dropdown options={tokenSelect} onChange={TokenSelect} value={defaultToken} placeholder="Select an token" /> : null }
           { (!waiting && provider && token) ? <ApproveTakeButton provider={provider} token={token} /> : null }
+        </Actions>
+        <Actions>
+          { (!waiting && provider && canTell) ? <Input type="text" value={daiValue} onChange={daiChange}/> : null }
+          { (!waiting && provider && canTell) ? <ExpenseButton provider={provider} token={token} /> : null }
         </Actions>
       </Body>
     </div>

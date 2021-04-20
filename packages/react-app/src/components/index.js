@@ -67,3 +67,10 @@ export const TokenBalance = styled.p`
   text-align: center;
   text-decoration: bold;
 `;
+
+export const Input = styled.input`
+  width: 23%;
+  color: black;
+  font-size: 24px;
+  text-align: left;
+`;
