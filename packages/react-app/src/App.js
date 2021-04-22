@@ -10,7 +10,7 @@ import tokenList from "@uniswap/default-token-list";
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 
-const CHAIN_ID = 42;
+const CHAIN_ID = 1;
 const MAX_EXPENSE = 3000;
 const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000";
 
