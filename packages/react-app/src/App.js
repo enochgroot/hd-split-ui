@@ -54,14 +54,32 @@ function App() {
     const split = new Contract(addresses.split, abis.split, signer);
 
     let bal = Zero;
+    let splitBal = Zero;
+    let splitRawBal = Zero;
     if (tokenAddress === null) {
       bal = await split.balance(signer.getAddress(), EMPTY_ADDRESS);
+      splitBal = await split.total(EMPTY_ADDRESS);
+      splitRawBal = await provider.getBalance(addresses.split);
     } else {
-      bal = await split.balance(signer.getAddress(), tokenAddress);
       const coin = new Contract(tokenAddress, abis.erc20, signer);
       dec = await coin.decimals();
+      bal = await split.balance(signer.getAddress(), tokenAddress);
+      splitBal = await split.total(tokenAddress);
+      splitRawBal = await coin.balanceOf(addresses.split);
     }
     
+    let bps = Zero;
+    if (splitRawBal.sub(splitBal).gt(0)) {
+      for(let i = 0; i < 100; i++) {
+        let folk = await split.folks(i);
+        if (folk === await signer.getAddress()) {
+          bps = await split.bps(i);
+          break;
+        }
+      }
+    }
+    bal = bal.add(splitRawBal.sub(splitBal).mul(bps).div(10000));
+
     setBalance(formatFixed(bal, dec));
   }
 
