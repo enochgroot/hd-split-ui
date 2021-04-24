@@ -6,9 +6,11 @@ const addresses = {
   //
   dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
   // HDSplit with tell() (darknode)
-  split: "0x2860f149aC57CDF02b8229046057656b7D86d928",
+  // split: "0x2860f149aC57CDF02b8229046057656b7D86d928",
   // HDSplit with tell() (mining)
-  // split: "0xF5bC5F1B05F01B393d025e2be32b65EEad149908",
+  // split: "0x794373dCdB024216018D59132E723031Fc0D7c2D",
+  // HDSplit with DAI set to 0x0 (Tulip 1637)
+  split: "0x3Aaf35C4160baA41b906c4E10AD13c91239584B9",
   //
   // kovan
   //
